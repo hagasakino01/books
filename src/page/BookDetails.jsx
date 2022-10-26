@@ -1,11 +1,14 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { PlusOutlined } from '@ant-design/icons';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import 'antd/dist/antd.css';
 import { Modal, Upload } from 'antd';
 import notification from './../img/notification.png'
 import thangBang from './../img/thang.jpg'
 import logout from './../img/logout.png'
+import { getIsLock } from '../features/featuresHome/HomeSlice';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 
 const getBase64 = (file) =>
@@ -21,16 +24,36 @@ function BookDetails() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
   const [previewTitle, setPreviewTitle] = useState('');
+  const [isEdit, setIsEdit] = useState(false);
   const [fileList, setFileList] = useState([]);
+  const [err, setErr] = useState(false);
 
   const handleChange = e => setInput(prevState => ({ ...prevState, [e.target.name]: e.target.value }));
+  const dispatch= useDispatch()
+  const navigate = useNavigate();
   const bookDetail = useSelector((state) => state.home.bookDetail)
-  console.log(bookDetail)
+  const isView = useSelector((state) => state.home.isView)
+ 
+  useEffect(() => {
+    if(isView){
+      setFileList([
+        {
+          uid: '-2',
+          name: 'image.png',
+          status: 'done',
+          url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+        },
+      ])
+    }
+  }, [])
+ 
   const handleLogout=()=>{
     localStorage.clear();
     
     window.location.reload();
   }
+
+
   const handleCancel = () => setPreviewOpen(false);
   const handlePreview = async (file) => {
     if (!file.url && !file.preview) {
@@ -41,8 +64,9 @@ function BookDetails() {
     setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
   };
   const handleChangeimg = ({ fileList: newFileList }) => {
+    
     setFileList(newFileList)
-    setInput(prevState => ({ ...prevState, newFileList }))
+    setInput(prevState => ({ ...prevState, flieImg:newFileList }))
   }
   const uploadButton = (
     <div>
@@ -59,10 +83,41 @@ function BookDetails() {
 
 console.log(input)
 
-
+const handleEdit=()=>{
+  dispatch(getIsLock(false))
+  setIsEdit(true)
+}
   
+  const handleAddBook=async (data)=>{ 
+    try {
+      const { data: res } = await axios.post('https://app-bookss.herokuapp.com/api/add-book', data);
+      console.log(res)
+      if(res.success){
+        alert('thêm sách thành công')
+        navigate('/')
+      }
+      
+     
+    
+  } catch (error) {
+      
+      console.error(error);
+  }
+  }
+  const handleAddBookCheck=(data)=>{
+   
+    if(input.title && input.author && input.detail && input.date && input.numOfPage && input.type ){
+      console.log('test')
+      setErr(false)
+      handleAddBook(data)
+
+    }
+    else {
+      setErr(true)
+    }
+  }
   return (
-    <div className='flex flex-col'>
+    <div className='flex flex-col pb-[50px]'>
       <div className='flex justify-end mt-[8px] mx-[8px]'>
         <div className='flex flex-row items-end w-[180px] h-[45px]'>
           <div className='flex flex-row items-center justify-center mx-[4px] mb-[10px]'>
@@ -94,13 +149,13 @@ console.log(input)
             <div className='flex flex-col w-1/2 pr-[10px]'>
               <p className='text-left text-[18px] font-semibold text-gray-600 '>Tiêu đề</p>
               <input className='rounded-[8px] border-[1px] h-[36px] px-[8px] border-gray-500 hover:shadow' type="text" 
-                name="title" value={input.title || ''} onChange={handleChange}
+                name="title" value={input.title || bookDetail.title } onChange={handleChange} disabled={isView}
               />
             </div>
             <div className='flex flex-col w-1/2 pr-[10px]'>
               <p className='text-left text-[18px] font-semibold text-gray-600 '>Tác giả</p>
               <input className='rounded-[8px] border-[1px] h-[36px] px-[8px] border-gray-500 hover:shadow' type="text" 
-                name="author" value={input.author || ''} onChange={handleChange}
+                name="author" value={input.author || bookDetail.author } onChange={handleChange} disabled={isView}
               />
             </div>
           </div>
@@ -112,32 +167,29 @@ console.log(input)
             cols={80}
             id=""
             placeholder=""
-            name="detail" value={input.detail || ''} onChange={handleChange}
+            name="detail" value={input.detail || bookDetail.detail } onChange={handleChange}
+            disabled={isView}
             >
             </textarea>
           </div>
           <div className='flex flex-row my-[20px]'>
             <div className='flex flex-col w-1/2 pr-[10px]'>
                 <p className='text-left text-[18px] font-semibold text-gray-600 '>Ngày phát hành</p>
-                <input className='rounded-[8px] border-[1px] h-[36px] px-[8px] border-gray-500 hover:shadow' type="date" 
-                  name="date" value={input.date || ''} onChange={handleChange}
+                <input className='rounded-[8px] border-[1px] h-[36px] px-[8px] border-gray-500 hover:shadow' type="text" 
+                  name="date" value={input.date || bookDetail.date } onChange={handleChange} disabled={isView}
                 />
               </div>
               <div className='flex flex-col w-1/2 pr-[10px]'>
                 <p className='text-left text-[18px] font-semibold text-gray-600 '>Số trang</p>
                 <input className='rounded-[8px] border-[1px] h-[36px] px-[8px] border-gray-500 hover:shadow' type="number" 
-                  name="numOfPage" value={input.numOfPage || ''} onChange={handleChange}
+                  name="numOfPage" value={input.numOfPage || bookDetail.numOfPage} onChange={handleChange} disabled={isView}
                 />
               </div>
           </div>
           <div className='flex flex-col my-[20px]'>
             <p className='text-left text-[18px] font-semibold text-gray-600 '>Thể loại</p>
-            <select className='rounded-[8px] border-[1px] h-[36px] border-gray-500 hover:shadow'  id="" name="type" value={input.type || ''} onChange={handleChange}>
-              <option selected disabled>chọn thể loại</option>
-              <option value="SGK">SGK</option>
-              <option value="Trinh tham">trinh tham</option>
-              <option value="kinh di">kinh di</option>
-            </select>
+            <input className='rounded-[8px] border-[1px] h-[36px] border-gray-500 hover:shadow'  type="text" 
+              name="type" value={input.type ||bookDetail.type } onChange={handleChange} disabled={isView}/>
           </div>
           
         </div>
@@ -150,7 +202,7 @@ console.log(input)
               fileList={fileList}
               onPreview={handlePreview}
               onChange={handleChangeimg}
-              
+              disabled={isView}
             >
               {fileList.length >= 1 ? null : uploadButton}
             </Upload>
@@ -165,9 +217,18 @@ console.log(input)
           </div>
         </div>
       </div>
-      <div className='flex justify-end'>
-        <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[50px]'>add</button>
-      </div>
+      {err&&<div className='flex justify-start'>
+      <p className=' text-red-600 '>Yêu cầu nhập đầy đủ thông tin.</p>
+      </div>}
+      {!isView&& !isEdit&&<div className='flex justify-end'>
+        <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleAddBookCheck(input)}>Add</button>
+      </div>}
+      {isView&& !isEdit&&<div className='flex justify-end'>
+        <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleEdit()}>Edit</button>
+      </div>}
+      { isEdit&&<div className='flex justify-end'>
+        <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleEdit()}>Save</button>
+      </div>}
     </div>
   )
 }

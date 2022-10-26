@@ -7,7 +7,7 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css'; 
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { getBookDetail, getListBook, getLogin } from '../features/featuresHome/HomeSlice';
+import { getBookDetail, getIsLock, getIsView, getListBook, getLogin } from '../features/featuresHome/HomeSlice';
 import axios from 'axios';
 function Home() {
  
@@ -71,7 +71,7 @@ const columnDefs = [
     headerClass: 'header-ag text-center',
     cellStyle: { ...defaultCellStyle, textAlign: 'left', paddingLeft:'18px'},
     headerName: 'số trang',
-    width: 200,
+    width: 170,
     suppressMenu: true,
     
   },
@@ -122,7 +122,7 @@ const handleLogin=()=>{
 }
 
 const handleDelete= async (params)=>{
-  const dataDel={_id:params.data._id}
+  const dataDel={_id:params._id}
   console.log(dataDel)
   await axios.delete(`https://app-bookss.herokuapp.com/api/delete-book`, dataDel)
     .then((res)=> {
@@ -136,6 +136,7 @@ const handleDelete= async (params)=>{
 const handleViewBook= async (params)=>{
   try {
    dispatch(getBookDetail(params.data))
+   dispatch(getIsLock(true))
    navigate('/BookDetails')
    
 } catch (error) {
@@ -143,6 +144,8 @@ const handleViewBook= async (params)=>{
 }
 }
 const handleAddBook=()=>{
+  dispatch(getIsLock(false))
+  dispatch(getBookDetail([]))
   navigate('/BookDetails')
 }
 

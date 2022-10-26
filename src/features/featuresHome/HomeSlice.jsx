@@ -4,7 +4,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState={
     listBook:[],
     bookDetail:[],
-    isView:false
+    isLock:false
 }
 export const homeSlice = createSlice({
     name:'home',
@@ -16,12 +16,12 @@ export const homeSlice = createSlice({
         getBookDetail:(state, action)=>{
             state.bookDetail=action.payload
         },
-        getIsView:(state, action)=>{
+        getIsLock:(state, action)=>{
             state.isView=action.payload
         },
         
     }
 
 })
-export const { getListBook,getBookDetail,getIsView}= homeSlice.actions
+export const { getListBook,getBookDetail,getIsLock}= homeSlice.actions
 export default homeSlice.reducer;
