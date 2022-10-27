@@ -17,7 +17,7 @@ export const homeSlice = createSlice({
             state.bookDetail=action.payload
         },
         getIsLock:(state, action)=>{
-            state.isView=action.payload
+            state.isLock=action.payload
         },
         
     }

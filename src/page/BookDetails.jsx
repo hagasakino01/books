@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { PlusOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
+import { Input } from 'antd';
 import 'antd/dist/antd.css';
 import { Modal, Upload } from 'antd';
 import notification from './../img/notification.png'
@@ -19,6 +20,8 @@ const getBase64 = (file) =>
     reader.onerror = (error) => reject(error);
   });
 
+  const { TextArea } = Input;
+
 function BookDetails() {
   const [input, setInput] = useState({});
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -27,13 +30,28 @@ function BookDetails() {
   const [isEdit, setIsEdit] = useState(false);
   const [fileList, setFileList] = useState([]);
   const [err, setErr] = useState(false);
+  const [onEdit, setonEdit] = useState(true);
 
   const handleChange = e => setInput(prevState => ({ ...prevState, [e.target.name]: e.target.value }));
   const dispatch= useDispatch()
   const navigate = useNavigate();
   const bookDetail = useSelector((state) => state.home.bookDetail)
-  const isView = useSelector((state) => state.home.isView)
- 
+  const isView = useSelector((state) => state.home.isLock)
+  console.log(bookDetail)
+  
+  useEffect(() => {
+    if(onEdit){
+      setInput({author: bookDetail.author,
+                date:bookDetail.date,
+                detail:bookDetail.detail,
+                numOfPage: bookDetail.numOfPage,
+                title: bookDetail.title,
+                type: bookDetail.type,
+                flieImg:  bookDetail.flieImg
+              })
+            }
+  }, [isEdit])
+
   useEffect(() => {
     if(isView){
       setFileList([
@@ -86,6 +104,16 @@ console.log(input)
 const handleEdit=()=>{
   dispatch(getIsLock(false))
   setIsEdit(true)
+}
+const handleCancelFix=()=>{
+  dispatch(getIsLock(true))
+  setonEdit(true)
+  setIsEdit(false)
+}
+const handleSave=()=>{
+  dispatch(getIsLock(true))
+  setonEdit(false)
+  setIsEdit(false)
 }
   
   const handleAddBook=async (data)=>{ 
@@ -148,21 +176,21 @@ const handleEdit=()=>{
           <div className='flex flex-row my-[20px]'>
             <div className='flex flex-col w-1/2 pr-[10px]'>
               <p className='text-left text-[18px] font-semibold text-gray-600 '>Tiêu đề</p>
-              <input className='rounded-[8px] border-[1px] h-[36px] px-[8px] border-gray-500 hover:shadow' type="text" 
+              <Input type="text" className=' h-[36px]  hover:shadow' 
                 name="title" value={input.title || bookDetail.title } onChange={handleChange} disabled={isView}
               />
             </div>
             <div className='flex flex-col w-1/2 pr-[10px]'>
               <p className='text-left text-[18px] font-semibold text-gray-600 '>Tác giả</p>
-              <input className='rounded-[8px] border-[1px] h-[36px] px-[8px] border-gray-500 hover:shadow' type="text" 
+              <Input className=' h-[36px]  hover:shadow' type="text" 
                 name="author" value={input.author || bookDetail.author } onChange={handleChange} disabled={isView}
               />
             </div>
           </div>
           <div className='flex flex-col my-[20px]'>
             <p className='text-left text-[18px] font-semibold text-gray-600'>Mô tả về sách</p>
-            <textarea
-            className=" w-full px-[8px] rounded-2xl border-gray-500 border py-2  hover:shadow"
+            <TextArea
+            className=" w-full  hover:shadow"
             rows={6}
             cols={80}
             id=""
@@ -170,25 +198,25 @@ const handleEdit=()=>{
             name="detail" value={input.detail || bookDetail.detail } onChange={handleChange}
             disabled={isView}
             >
-            </textarea>
+            </TextArea>
           </div>
           <div className='flex flex-row my-[20px]'>
             <div className='flex flex-col w-1/2 pr-[10px]'>
                 <p className='text-left text-[18px] font-semibold text-gray-600 '>Ngày phát hành</p>
-                <input className='rounded-[8px] border-[1px] h-[36px] px-[8px] border-gray-500 hover:shadow' type="text" 
+                <Input className='rounded-[8px] border-[1px] h-[36px] px-[8px] border-gray-500 hover:shadow' type="text" 
                   name="date" value={input.date || bookDetail.date } onChange={handleChange} disabled={isView}
                 />
               </div>
               <div className='flex flex-col w-1/2 pr-[10px]'>
                 <p className='text-left text-[18px] font-semibold text-gray-600 '>Số trang</p>
-                <input className='rounded-[8px] border-[1px] h-[36px] px-[8px] border-gray-500 hover:shadow' type="number" 
+                <Input className='rounded-[8px] border-[1px] h-[36px] px-[8px] border-gray-500 hover:shadow' type="number" 
                   name="numOfPage" value={input.numOfPage || bookDetail.numOfPage} onChange={handleChange} disabled={isView}
                 />
               </div>
           </div>
           <div className='flex flex-col my-[20px]'>
             <p className='text-left text-[18px] font-semibold text-gray-600 '>Thể loại</p>
-            <input className='rounded-[8px] border-[1px] h-[36px] border-gray-500 hover:shadow'  type="text" 
+            <Input className='rounded-[8px] border-[1px] h-[36px] border-gray-500 hover:shadow'  type="text" 
               name="type" value={input.type ||bookDetail.type } onChange={handleChange} disabled={isView}/>
           </div>
           
@@ -227,7 +255,8 @@ const handleEdit=()=>{
         <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleEdit()}>Edit</button>
       </div>}
       { isEdit&&<div className='flex justify-end'>
-        <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleEdit()}>Save</button>
+        <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[20px]' onClick={()=>handleSave()}>Save</button>
+        <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-red-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleCancelFix()}>Cancel</button>
       </div>}
     </div>
   )
