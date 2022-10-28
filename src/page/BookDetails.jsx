@@ -47,7 +47,7 @@ function BookDetails() {
                 numOfPage: bookDetail.numOfPage,
                 title: bookDetail.title,
                 type: bookDetail.type,
-                flieImg:  bookDetail.flieImg
+                urlImage:  bookDetail.urlImage
               })
             }
   }, [isEdit])
@@ -59,7 +59,7 @@ function BookDetails() {
           uid: '-2',
           name: 'image.png',
           status: 'done',
-          url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+          url: bookDetail.urlImage,
         },
       ])
     }
@@ -74,6 +74,7 @@ function BookDetails() {
 
   const handleCancel = () => setPreviewOpen(false);
   const handlePreview = async (file) => {
+    console.log(file)
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj);
     }
@@ -81,10 +82,15 @@ function BookDetails() {
     setPreviewOpen(true);
     setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
   };
-  const handleChangeimg = ({ fileList: newFileList }) => {
+  const handleChangeimg = async({ fileList: newFileList }) => {
     
     setFileList(newFileList)
-    setInput(prevState => ({ ...prevState, flieImg:newFileList }))
+    const file=newFileList[0]
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj);
+    }
+    console.log(file.preview)
+    setInput(prevState => ({ ...prevState, urlImage : file.preview }))
   }
   const uploadButton = (
     <div>
@@ -110,7 +116,17 @@ const handleCancelFix=()=>{
   setonEdit(true)
   setIsEdit(false)
 }
-const handleSave=()=>{
+const handleSave= async (data)=>{
+  try {
+    const { data: res } = await axios.put(`https://app-bookss.herokuapp.com/api/update-book/${bookDetail._id}`, data);
+    console.log(res)
+    if(res.success){
+      alert('sửa sách thành công')
+    }
+} catch (error) {
+    
+    console.error(error);
+}
   dispatch(getIsLock(true))
   setonEdit(false)
   setIsEdit(false)
@@ -123,10 +139,10 @@ const handleSave=()=>{
       if(res.success){
         alert('thêm sách thành công')
         navigate('/')
+      }else{
+        alert('có lỗi xảy ra')
       }
-      
-     
-    
+
   } catch (error) {
       
       console.error(error);
@@ -219,7 +235,9 @@ const handleSave=()=>{
             <Input className='rounded-[8px] border-[1px] h-[36px] border-gray-500 hover:shadow'  type="text" 
               name="type" value={input.type ||bookDetail.type } onChange={handleChange} disabled={isView}/>
           </div>
-          
+          {err&&<div className='flex justify-start'>
+            <p className=' text-red-600 '>Yêu cầu nhập đầy đủ thông tin.</p>
+          </div>}
         </div>
         <div className='flex flex-col w-1/2 px-[10px] max-w-[620px]'>
         <div className='flex flex-col my-[20px]'>
@@ -245,9 +263,7 @@ const handleSave=()=>{
           </div>
         </div>
       </div>
-      {err&&<div className='flex justify-start'>
-      <p className=' text-red-600 '>Yêu cầu nhập đầy đủ thông tin.</p>
-      </div>}
+     
       {!isView&& !isEdit&&<div className='flex justify-end'>
         <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleAddBookCheck(input)}>Add</button>
       </div>}
@@ -255,7 +271,7 @@ const handleSave=()=>{
         <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleEdit()}>Edit</button>
       </div>}
       { isEdit&&<div className='flex justify-end'>
-        <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[20px]' onClick={()=>handleSave()}>Save</button>
+        <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[20px]' onClick={()=>handleSave(input)}>Save</button>
         <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-red-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleCancelFix()}>Cancel</button>
       </div>}
     </div>

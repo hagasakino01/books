@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AgGridReact, AgGridReactProps, AgReactUiProps } from 'ag-grid-react';
+import { Alert, Button, Space } from 'antd';
 import notification from './../img/notification.png'
 import thangBang from './../img/thang.jpg'
 import logout from './../img/logout.png'
@@ -122,17 +123,25 @@ const handleLogin=()=>{
 }
 
 const handleDelete= async (params)=>{
-  const dataDel={_id:params._id}
-  console.log(dataDel)
-  await axios.delete(`https://app-bookss.herokuapp.com/api/delete-book`, dataDel)
+  
+  console.log(params.data._id)
+  await axios.delete(`https://app-bookss.herokuapp.com/api/delete-book/${params.data._id}`)
     .then((res)=> {
       console.log( res )
+      window.location.reload();
     }).catch((err)=> {
       console.log(err)
     });
     console.log('ok')
 }
 
+const handleDeleteCheck=(params)=>{
+  if(window.confirm("Bấm OK để tiếp tục xóa") === true){
+    handleDelete(params)
+}else{
+    console.log('ko xoa')
+}
+}
 const handleViewBook= async (params)=>{
   try {
    dispatch(getBookDetail(params.data))
@@ -200,7 +209,7 @@ const handleAddBook=()=>{
                   <div>
                     {token&&<div>
                       <button className='border-neutral-400 border-[1px] mx-[8px] px-[8px] pb-[2px] bg-yellow-200' onClick={()=>handleViewBook(params)} >Xem</button>
-                      <button className='border-neutral-400 border-[1px] mx-[8px] px-[8px] pb-[2px] bg-red-400' onClick={()=>handleDelete(params)}>Xóa</button>
+                      <button className='border-neutral-400 border-[1px] mx-[8px] px-[8px] pb-[2px] bg-red-400' onClick={()=>handleDeleteCheck(params)}>Xóa</button>
                     </div>}
                   </div>
                 )
