@@ -151,7 +151,7 @@ const handleSave= async (data)=>{
   const handleAddBookCheck=(data)=>{
    
     if(input.title && input.author && input.detail && input.date && input.numOfPage && input.type ){
-      console.log('test')
+      console.log(data)
       setErr(false)
       handleAddBook(data)
 
