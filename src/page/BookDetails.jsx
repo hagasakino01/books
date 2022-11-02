@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { PlusOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, HomeOutlined, PlusOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { Input } from 'antd';
 import 'antd/dist/antd.css';
@@ -160,28 +160,36 @@ const handleSave= async (data)=>{
       setErr(true)
     }
   }
+  const handleBack=()=>{
+    navigate('/')
+  }
   return (
     <div className='flex flex-col pb-[50px]'>
-      <div className='flex justify-end mt-[8px] mx-[8px]'>
-        <div className='flex flex-row items-end w-[180px] h-[45px]'>
-          <div className='flex flex-row items-center justify-center mx-[4px] mb-[10px]'>
-            <img className='w-[24px]  ' src={notification} alt="" />
+      <div className='fixed w-full bg-white shadow-md z-10'>
+        <div className='flex justify-between py-[8px] px-[8px]  border-b-[1px] '>
+          <div className='py-[8px] ml-[10px]'>
+              <HomeOutlined style={{ fontSize: '25px',  }} onClick={()=>handleBack()}/>          
           </div>
-          <div className='flex flex-row items-center'>
-            <div className='w-[42px] h-[42px] rounded-[50px] mx-[4px]'>
-              <img className='w-[42px] h-[42px] rounded-[50px]' src={thangBang} alt="" />
+          <div className='flex flex-row items-end w-[180px] h-[45px]'>
+            <div className='flex flex-row items-center justify-center mx-[4px] mb-[10px]'>
+              <img className='w-[24px]  ' src={notification} alt="" />
             </div>
-            <div className=' mx-[4px]'>
-              <p className='text-[14px] text-[#7D7D7D] mb-0'>Xin chào</p>
-              <p className='text-[14px] text-[#EA6200] mb-0'>Admin001</p>
-            </div>
-            <div onClick={()=>handleLogout()}>
-              <img className='w-[24px] cursor-pointer' src={logout}  alt="" />
+            <div className='flex flex-row items-center'>
+              <div className='w-[42px] h-[42px] rounded-[50px] mx-[4px]'>
+                <img className='w-[42px] h-[42px] rounded-[50px]' src={thangBang} alt="" />
+              </div>
+              <div className=' mx-[4px]'>
+                <p className='text-[14px] text-[#7D7D7D] mb-0'>Xin chào</p>
+                <p className='text-[14px] text-[#EA6200] mb-0'>Admin001</p>
+              </div>
+              <div onClick={()=>handleLogout()}>
+                <img className='w-[24px] cursor-pointer' src={logout}  alt="" />
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div className='flex flex-col items-center justify-center'>
+      <div className='flex flex-col items-center justify-center mt-[80px]'>
         <div className='max-w-[500px]'>
           <p className='text-[60px] font-semibold text-indigo-500 h-[60px] mb-[10px]'>Welcome</p>
           <p className='text-[48px] text-amber-300 '>to your library</p>
@@ -241,7 +249,7 @@ const handleSave= async (data)=>{
         </div>
         <div className='flex flex-col w-1/2 px-[10px] max-w-[620px]'>
         <div className='flex flex-col my-[20px]'>
-          <p className='text-left text-[18px] font-semibold text-gray-600 '>Ảnh bìa</p>
+            <p className='text-left text-[18px] font-semibold text-gray-600 '>Ảnh bìa</p>
             <Upload
               action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
               listType="picture-card"
