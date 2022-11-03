@@ -3,7 +3,7 @@ import { ArrowLeftOutlined, HomeOutlined, PlusOutlined } from '@ant-design/icons
 import { useDispatch, useSelector } from 'react-redux';
 import { Input } from 'antd';
 import 'antd/dist/antd.css';
-import { Modal, Upload } from 'antd';
+import { Image } from 'antd';
 import notification from './../img/notification.png'
 import thangBang from './../img/thang.jpg'
 import logout from './../img/logout.png'
@@ -11,24 +11,13 @@ import { getIsLock } from '../features/featuresHome/HomeSlice';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-
-const getBase64 = (file) =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-  });
-
-  const { TextArea } = Input;
+const { TextArea } = Input;
 
 function BookDetails() {
   const [input, setInput] = useState({});
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState('');
-  const [previewTitle, setPreviewTitle] = useState('');
+
   const [isEdit, setIsEdit] = useState(false);
-  const [fileList, setFileList] = useState([]);
+
   const [err, setErr] = useState(false);
   const [onEdit, setonEdit] = useState(true);
 
@@ -37,6 +26,8 @@ function BookDetails() {
   const navigate = useNavigate();
   const bookDetail = useSelector((state) => state.home.bookDetail)
   const isView = useSelector((state) => state.home.isLock)
+  const [picture, setPicture] = useState(null);
+  const [imgData, setImgData] = useState(null);
   console.log(bookDetail)
   
   useEffect(() => {
@@ -54,14 +45,7 @@ function BookDetails() {
 
   useEffect(() => {
     if(isView){
-      setFileList([
-        {
-          uid: '-2',
-          name: 'image.png',
-          status: 'done',
-          url: bookDetail.urlImage,
-        },
-      ])
+      setImgData(bookDetail.urlImage)
     }
   }, [])
  
@@ -72,38 +56,7 @@ function BookDetails() {
   }
 
 
-  const handleCancel = () => setPreviewOpen(false);
-  const handlePreview = async (file) => {
-    console.log(file)
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj);
-    }
-    setPreviewImage(file.url || file.preview);
-    setPreviewOpen(true);
-    setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
-  };
-  const handleChangeimg = async({ fileList: newFileList }) => {
-    
-    setFileList(newFileList)
-    const file=newFileList[0]
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj);
-    }
-    console.log(file.preview)
-    setInput(prevState => ({ ...prevState, urlImage : file.preview }))
-  }
-  const uploadButton = (
-    <div>
-      <PlusOutlined />
-      <div
-        style={{
-          marginTop: 8,
-        }}
-      >
-        Upload
-      </div>
-    </div>
-  );
+ 
 
 console.log(input)
 
@@ -115,6 +68,7 @@ const handleCancelFix=()=>{
   dispatch(getIsLock(true))
   setonEdit(true)
   setIsEdit(false)
+  setImgData(bookDetail.urlImage)
 }
 const handleSave= async (data)=>{
   try {
@@ -122,16 +76,15 @@ const handleSave= async (data)=>{
     console.log(res)
     if(res.success){
       alert('sửa sách thành công')
+      dispatch(getIsLock(true))
+      setonEdit(false)
+      setIsEdit(false)
     }
 } catch (error) {
-    
     console.error(error);
 }
-  dispatch(getIsLock(true))
-  setonEdit(false)
-  setIsEdit(false)
-}
   
+}
   const handleAddBook=async (data)=>{ 
     try {
       const { data: res } = await axios.post('https://app-bookss.herokuapp.com/api/add-book', data);
@@ -163,6 +116,24 @@ const handleSave= async (data)=>{
   const handleBack=()=>{
     navigate('/')
   }
+
+  const onChangePicture = e => {
+    if (e.target.files[0]) {
+      
+      setPicture(e.target.files[0]);
+      const reader = new FileReader();
+      
+      reader.addEventListener("load", () => {
+        setImgData(reader.result);
+        setInput(prevState => ({ ...prevState, urlImage : reader.result }))
+      });
+      reader.readAsDataURL(e.target.files[0]);
+      
+    
+    }
+    
+  };
+
   return (
     <div className='flex flex-col pb-[50px]'>
       <div className='fixed w-full bg-white shadow-md z-10'>
@@ -250,24 +221,12 @@ const handleSave= async (data)=>{
         <div className='flex flex-col w-1/2 px-[10px] max-w-[620px]'>
         <div className='flex flex-col my-[20px]'>
             <p className='text-left text-[18px] font-semibold text-gray-600 '>Ảnh bìa</p>
-            <Upload
-              action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-              listType="picture-card"
-              fileList={fileList}
-              onPreview={handlePreview}
-              onChange={handleChangeimg}
-              disabled={isView}
-            >
-              {fileList.length >= 1 ? null : uploadButton}
-            </Upload>
-            <Modal
-              open={previewOpen}
-              title={previewTitle}
-              footer={null}
-              onCancel={handleCancel}
-            >
-              <img alt="example" style={{ width: '100%' }} src={previewImage} />
-            </Modal>
+            <form>
+                <Input  type="file" name="file" onChange={onChangePicture} disabled={isView}/>
+                <div className="flex   object-cover justify-center ">
+                  <Image preview={false} src={imgData} />
+                </div>
+            </form>
           </div>
         </div>
       </div>

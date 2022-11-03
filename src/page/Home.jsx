@@ -132,7 +132,7 @@ const handleDelete= async (params)=>{
   await axios.delete(`https://app-bookss.herokuapp.com/api/delete-book/${params.data._id}`)
     .then((res)=> {
       console.log( res )
-      window.location.reload();
+      handleGetListBook()
     }).catch((err)=> {
       console.log(err)
     });
