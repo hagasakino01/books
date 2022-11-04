@@ -235,11 +235,11 @@ const handleSave= async (data)=>{
                 <div className='w-[170px] border-[1px] mb-[20px] cursor-pointer'>
                   <label htmlFor="file" className={isView&&'opacity-50 flex flex-row'||'opacity-100 cursor-pointer flex flex-row'}>
                     <p className='mx-[10px] pr-[10px] my-auto'>Upload Image</p>
-                    <UploadOutlined style={{ fontSize: 36 }} />
+                    <UploadOutlined style={{ fontSize: 34 }} />
                   </label>
                 </div>
-                <div className="flex object-cover justify-center ">
-                  <Image preview={false} src={imgData} />
+                <div className="flex  justify-center ">
+                  <Image  src={imgData} />
                 </div>
             </form>
           </div>

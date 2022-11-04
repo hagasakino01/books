@@ -72,7 +72,7 @@ const columnDefs = [
     cellStyle: { ...defaultCellStyle, textAlign: 'left', paddingLeft:'18px'},
     headerName: 'ngày phát hành',
     width: 160,
-    suppressMenu: true,
+    filter: true,
   },
   {
     field: 'numOfPage',
