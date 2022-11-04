@@ -14,14 +14,14 @@ import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 
 
-const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />
+const antIcon = <LoadingOutlined style={{ fontSize: 240 }} spin />
 function Home() {
  
   const dispatch= useDispatch()
   const navigate = useNavigate();
   const gridRef = useRef(); 
   const rowData = useSelector((state) => state.home.listBook)
-
+  const [loading, setLoading] = useState(false);
  const defaultCellStyle = {
   fontSize: '14px',
   lineHeight: '18px',
@@ -105,9 +105,11 @@ const columnDefs = [
  
  // Example load data from sever
 const handleGetListBook= async ()=>{
+  setLoading(true)
   axios.get('https://app-bookss.herokuapp.com/api/get-books')
   .then(function (response) {
     // handle success
+    setLoading(false)
     console.log(response)
     dispatch(getListBook(response.data))
   .catch(function (error) {
@@ -132,7 +134,7 @@ const handleLogin=()=>{
 }
 
 const handleDelete= async (params)=>{
-  
+  setLoading(true)
   console.log(params.data._id)
   await axios.delete(`https://app-bookss.herokuapp.com/api/delete-book/${params.data._id}`)
     .then((res)=> {
@@ -157,11 +159,11 @@ const handleViewBook= async (params)=>{
   axios.get(`https://app-bookss.herokuapp.com/api/detail-book/${params.data._id}`)
   .then(function (response) {
     // handle success
-
+    navigate('/BookDetails')
     console.log(response)
     dispatch(getBookDetail(response.data))
     dispatch(getIsLock(true))
-    navigate('/BookDetails')
+    
   .catch(function (error) {
       // handle error
       console.log(error);
@@ -219,7 +221,7 @@ const handleAddBook=()=>{
     {token && <div className=' flex w-[350px] md:w-[720px] xl:w-[1120px] justify-end my-[16px]'>
       <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold ' onClick={()=>handleAddBook()}>Thêm sách</button>
     </div>}
-    <div className="ag-theme-alpine w-[350px] md:w-[720px] xl:w-[1120px] h-[600px] mx-[20px]" >
+    {!loading&&<div className="ag-theme-alpine w-[350px] md:w-[720px] xl:w-[1120px] h-[600px] mx-[20px]" >
       <AgGridReact
           ref={gridRef} 
 
@@ -263,8 +265,10 @@ const handleAddBook=()=>{
       cacheBlockSize={20}
       
           />
+    </div>}
+    <div>
+      {loading&&<Spin tip="Loading..." indicator={antIcon}/>}
     </div>
-    
   </div>
   );
  };

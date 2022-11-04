@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { ArrowLeftOutlined, HomeOutlined, PlusOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, HomeOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { Input } from 'antd';
 import 'antd/dist/antd.css';
@@ -230,9 +230,15 @@ const handleSave= async (data)=>{
         <div className='flex flex-col w-1/2 px-[10px] max-w-[620px]'>
         <div className='flex flex-col my-[20px]'>
             <p className='text-left text-[18px] font-semibold text-gray-600 '>Ảnh bìa</p>
-            <form>
-                <Input  type="file" name="file"  onChange={onChangePicture} disabled={isView}/>
-                <div className="flex   object-cover justify-center ">
+            <form className='flex flex-col justify-center items-center'>
+                <input className='overflow-hidden opacity-0 w-[1px] h-[1px]' type="file" id='file'  onChange={onChangePicture} disabled={isView}/>
+                <div className='w-[170px] border-[1px] mb-[20px] cursor-pointer'>
+                  <label htmlFor="file" className={isView&&'opacity-50 flex flex-row'||'opacity-100 cursor-pointer flex flex-row'}>
+                    <p className='mx-[10px] pr-[10px] my-auto'>Upload Image</p>
+                    <UploadOutlined style={{ fontSize: 36 }} />
+                  </label>
+                </div>
+                <div className="flex object-cover justify-center ">
                   <Image preview={false} src={imgData} />
                 </div>
             </form>
