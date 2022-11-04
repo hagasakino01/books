@@ -10,9 +10,12 @@ import logout from './../img/logout.png'
 import { getIsLock } from '../features/featuresHome/HomeSlice';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-
+import { Spin } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 
+
+const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />
 function BookDetails() {
   const [input, setInput] = useState({});
 
@@ -28,6 +31,7 @@ function BookDetails() {
   const isView = useSelector((state) => state.home.isLock)
   const [picture, setPicture] = useState(null);
   const [imgData, setImgData] = useState(null);
+  const [loading, setLoading] = useState(false);
   console.log(bookDetail)
   
   useEffect(() => {
@@ -71,14 +75,17 @@ const handleCancelFix=()=>{
   setImgData(bookDetail.urlImage)
 }
 const handleSave= async (data)=>{
+  setLoading(true)
   try {
     const { data: res } = await axios.put(`https://app-bookss.herokuapp.com/api/update-book/${bookDetail._id}`, data);
     console.log(res)
     if(res.success){
-      alert('sửa sách thành công')
+      setLoading(false)
+      
       dispatch(getIsLock(true))
       setonEdit(false)
       setIsEdit(false)
+      alert('sửa sách thành công')
     }
 } catch (error) {
     console.error(error);
@@ -86,18 +93,20 @@ const handleSave= async (data)=>{
   
 }
   const handleAddBook=async (data)=>{ 
+    
     try {
       const { data: res } = await axios.post('https://app-bookss.herokuapp.com/api/add-book', data);
       console.log(res)
       if(res.success){
+        setLoading(false)
         alert('thêm sách thành công')
         navigate('/')
+        
       }else{
         alert('có lỗi xảy ra')
       }
 
   } catch (error) {
-      
       console.error(error);
   }
   }
@@ -107,7 +116,7 @@ const handleSave= async (data)=>{
       console.log(data)
       setErr(false)
       handleAddBook(data)
-
+      setLoading(true)
     }
     else {
       setErr(true)
@@ -222,7 +231,7 @@ const handleSave= async (data)=>{
         <div className='flex flex-col my-[20px]'>
             <p className='text-left text-[18px] font-semibold text-gray-600 '>Ảnh bìa</p>
             <form>
-                <Input  type="file" name="file" onChange={onChangePicture} disabled={isView}/>
+                <Input  type="file" name="file"  onChange={onChangePicture} disabled={isView}/>
                 <div className="flex   object-cover justify-center ">
                   <Image preview={false} src={imgData} />
                 </div>
@@ -232,13 +241,13 @@ const handleSave= async (data)=>{
       </div>
      
       {!isView&& !isEdit&&<div className='flex justify-end'>
-        <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleAddBookCheck(input)}>Add</button>
+        <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleAddBookCheck(input)}>Add   {loading&&<Spin indicator={antIcon}/>}</button>
       </div>}
       {isView&& !isEdit&&<div className='flex justify-end'>
         <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleEdit()}>Edit</button>
       </div>}
       { isEdit&&<div className='flex justify-end'>
-        <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[20px]' onClick={()=>handleSave(input)}>Save</button>
+        <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[20px]' onClick={()=>handleSave(input)}>Save   {loading&&<Spin indicator={antIcon}/>}</button>
         <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-red-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleCancelFix()}>Cancel</button>
       </div>}
     </div>

@@ -10,6 +10,11 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getBookDetail, getIsLock, getIsView, getListBook, getLogin } from '../features/featuresHome/HomeSlice';
 import axios from 'axios';
+import { Spin } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
+
+
+const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />
 function Home() {
  
   const dispatch= useDispatch()
@@ -132,6 +137,7 @@ const handleDelete= async (params)=>{
   await axios.delete(`https://app-bookss.herokuapp.com/api/delete-book/${params.data._id}`)
     .then((res)=> {
       console.log( res )
+   
       handleGetListBook()
     }).catch((err)=> {
       console.log(err)
@@ -147,9 +153,11 @@ const handleDeleteCheck=(params)=>{
 }
 }
 const handleViewBook= async (params)=>{
+  
   axios.get(`https://app-bookss.herokuapp.com/api/detail-book/${params.data._id}`)
   .then(function (response) {
     // handle success
+
     console.log(response)
     dispatch(getBookDetail(response.data))
     dispatch(getIsLock(true))
@@ -224,7 +232,7 @@ const handleAddBook=()=>{
                 return (
                   <div>
                     {token&&<div>
-                      <button className='border-neutral-400 border-[1px] mx-[8px] px-[8px] pb-[2px] bg-yellow-200' onClick={()=>handleViewBook(params)} >Xem</button>
+                      <button className='border-neutral-400 border-[1px] mx-[8px] px-[8px] pb-[2px] bg-yellow-200' onClick={()=>handleViewBook(params)} >Xem </button>
                       <button className='border-neutral-400 border-[1px] mx-[8px] px-[8px] pb-[2px] bg-red-400' onClick={()=>handleDeleteCheck(params)}>Xóa</button>
                     </div>}
                   </div>
