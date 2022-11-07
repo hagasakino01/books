@@ -154,22 +154,12 @@ const handleDeleteCheck=(params)=>{
     console.log('ko xoa')
 }
 }
-const handleViewBook= async (params)=>{
+const handleViewBook=  (params)=>{
   
-  axios.get(`https://app-bookss.herokuapp.com/api/detail-book/${params.data._id}`)
-  .then(function (response) {
     // handle success
-    navigate('/BookDetails')
-    console.log(response)
-    dispatch(getBookDetail(response.data))
-    dispatch(getIsLock(true))
+    navigate(`/BookDetails/`+ params.data._id)
     
-  .catch(function (error) {
-      // handle error
-      console.log(error);
-      
-  })
-})
+
 }
 
 const handleAddBook=()=>{

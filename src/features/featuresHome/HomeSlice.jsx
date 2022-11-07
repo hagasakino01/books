@@ -18,8 +18,7 @@ export const homeSlice = createSlice({
         },
         getIsLock:(state, action)=>{
             state.isLock=action.payload
-        },
-        
+        },        
     }
 
 })

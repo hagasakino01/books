@@ -9,13 +9,14 @@ import thangBang from './../img/thang.jpg'
 import logout from './../img/logout.png'
 import { getIsLock } from '../features/featuresHome/HomeSlice';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />
+const antIconPage = <LoadingOutlined style={{ fontSize: 240 }} spin />
 function BookDetails() {
   const [input, setInput] = useState({});
 
@@ -27,13 +28,45 @@ function BookDetails() {
   const handleChange = e => setInput(prevState => ({ ...prevState, [e.target.name]: e.target.value }));
   const dispatch= useDispatch()
   const navigate = useNavigate();
-  const bookDetail = useSelector((state) => state.home.bookDetail)
-  const isView = useSelector((state) => state.home.isLock)
+  // const bookDetail = useSelector((state) => state.home.bookDetail)
+  // const isView = useSelector((state) => state.home.isLock)
   const [picture, setPicture] = useState(null);
   const [imgData, setImgData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingPage, setLoadingPage] = useState(false);
+  const [bookDetail, setBookDetail] = useState({});
+  const [isView, setIsView] = useState(false);
   console.log(bookDetail)
   
+
+
+  const params = useParams();
+  useEffect(() => {
+    if(params.id){
+      setIsView(true)
+            }
+  }, [params])
+  console.log(params)
+  const handleGetDataDetail=async()=>{
+    setLoadingPage(true)
+    axios.get(`https://app-bookss.herokuapp.com/api/detail-book/${params.id}`)
+    .then(function (response) {
+      // handle success
+      setLoadingPage(false)
+      console.log(response)
+      setBookDetail(response.data)
+    .catch(function (error) {
+        // handle error
+        console.log(error);
+        
+    })
+  })
+  }
+  useEffect(() => {
+    if(params.id){
+      handleGetDataDetail()
+            }
+  }, [])
   useEffect(() => {
     if(onEdit){
       setInput({author: bookDetail.author,
@@ -51,7 +84,7 @@ function BookDetails() {
     if(isView){
       setImgData(bookDetail.urlImage)
     }
-  }, [])
+  }, [bookDetail])
  
   const handleLogout=()=>{
     localStorage.clear();
@@ -65,14 +98,23 @@ function BookDetails() {
 console.log(input)
 
 const handleEdit=()=>{
-  dispatch(getIsLock(false))
+  setIsView(false)
   setIsEdit(true)
 }
 const handleCancelFix=()=>{
-  dispatch(getIsLock(true))
+  setIsView(true)
   setonEdit(true)
   setIsEdit(false)
   setImgData(bookDetail.urlImage)
+  setInput({author: bookDetail.author,
+    date:bookDetail.date,
+    detail:bookDetail.detail,
+    numOfPage: bookDetail.numOfPage,
+    title: bookDetail.title,
+    type: bookDetail.type,
+    urlImage:  bookDetail.urlImage
+  })
+
 }
 const handleSave= async (data)=>{
   setLoading(true)
@@ -81,8 +123,7 @@ const handleSave= async (data)=>{
     console.log(res)
     if(res.success){
       setLoading(false)
-      
-      dispatch(getIsLock(true))
+      setIsView(true)
       setonEdit(false)
       setIsEdit(false)
       alert('sửa sách thành công')
@@ -175,7 +216,7 @@ const handleSave= async (data)=>{
           <p className='text-[48px] text-amber-300 '>to your library</p>
         </div>
       </div>
-      <div className='flex flex-row px-[24px] w-full justify-center'>
+      {!loadingPage&&<div className='flex flex-row px-[24px] w-full justify-center'>
         <div className='flex flex-col w-1/2 px-[10px] max-w-[620px] '>
           <div className='flex flex-row my-[20px]'>
             <div className='flex flex-col w-1/2 pr-[10px]'>
@@ -244,17 +285,21 @@ const handleSave= async (data)=>{
             </form>
           </div>
         </div>
+      </div>}
+      <div>
+        {loadingPage&&<Spin tip="Loading..." indicator={antIconPage}/>}
       </div>
-     
-      {!isView&& !isEdit&&<div className='flex justify-end'>
-        <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleAddBookCheck(input)}>Add   {loading&&<Spin indicator={antIcon}/>}</button>
-      </div>}
-      {isView&& !isEdit&&<div className='flex justify-end'>
-        <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleEdit()}>Edit</button>
-      </div>}
-      { isEdit&&<div className='flex justify-end'>
-        <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[20px]' onClick={()=>handleSave(input)}>Save   {loading&&<Spin indicator={antIcon}/>}</button>
-        <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-red-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleCancelFix()}>Cancel</button>
+      {!loadingPage&&<div>
+        {!isView&& !isEdit&&<div className='flex justify-end'>
+          <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleAddBookCheck(input)}>Add   {loading&&<Spin indicator={antIcon}/>}</button>
+        </div>}
+        {isView&& !isEdit&&<div className='flex justify-end'>
+          <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleEdit()}>Edit</button>
+        </div>}
+        { isEdit&&<div className='flex justify-end'>
+          <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[20px]' onClick={()=>handleSave(input)}>Save   {loading&&<Spin indicator={antIcon}/>}</button>
+          <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-red-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleCancelFix()}>Cancel</button>
+        </div>}
       </div>}
     </div>
   )
