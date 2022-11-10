@@ -35,7 +35,7 @@ const columnDefs = [
     headerClass: 'header-ag header-text-center',
     cellStyle: { ...defaultCellStyle, textAlign: 'left' },
     headerName: '',
-    width: 50,
+    width: 35,
     suppressMenu: true,
     
   },
@@ -155,11 +155,8 @@ const handleDeleteCheck=(params)=>{
 }
 }
 const handleViewBook=  (params)=>{
-  
     // handle success
     navigate(`/BookDetails/`+ params.data._id)
-    
-
 }
 
 const handleAddBook=()=>{
@@ -253,7 +250,6 @@ const handleAddBook=()=>{
       pagination={true}
       paginationPageSize={20}
       cacheBlockSize={20}
-      
           />
     </div>}
     <div>
