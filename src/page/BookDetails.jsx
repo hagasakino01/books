@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Input } from 'antd';
 import 'antd/dist/antd.css';
 import { Image } from 'antd';
-import notification from './../img/notification.png'
+import notificationImg from './../img/notification.png'
 import thangBang from './../img/thang.jpg'
 import logout from './../img/logout.png'
 import { getIsLock } from '../features/featuresHome/HomeSlice';
@@ -12,11 +12,20 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
+import { notification, } from 'antd';
 const { TextArea } = Input;
 
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />
 const antIconPage = <LoadingOutlined style={{ fontSize: 240 }} spin />
+const openNotification = (placement, action) => {
+  notification.info({
+    message: `${action} sách thành công.`,
+    description:
+      '',
+    placement,
+  });
+};
 function BookDetails() {
   const [input, setInput] = useState({});
 
@@ -38,7 +47,12 @@ function BookDetails() {
   const [isView, setIsView] = useState(false);
   console.log(bookDetail)
   
-
+  useEffect(() => {
+    const token= localStorage.getItem('token')
+    if(!token){
+      navigate('/Login')
+    }
+  }, [])
 
   const params = useParams();
   useEffect(() => {
@@ -88,7 +102,7 @@ function BookDetails() {
  
   const handleLogout=()=>{
     localStorage.clear();
-    
+    navigate('/Login')
     window.location.reload();
   }
 
@@ -126,7 +140,8 @@ const handleSave= async (data)=>{
       setIsView(true)
       setonEdit(false)
       setIsEdit(false)
-      alert('sửa sách thành công')
+      // alert('sửa sách thành công')
+      openNotification('top','Sửa')
     }
 } catch (error) {
     console.error(error);
@@ -140,7 +155,8 @@ const handleSave= async (data)=>{
       console.log(res)
       if(res.success){
         setLoading(false)
-        alert('thêm sách thành công')
+        // alert('thêm sách thành công')
+        openNotification('top','Thêm')
         navigate('/')
         
       }else{
@@ -193,7 +209,7 @@ const handleSave= async (data)=>{
           </div>
           <div className='flex flex-row items-end w-[180px] h-[45px]'>
             <div className='flex flex-row items-center justify-center mx-[4px] mb-[10px]'>
-              <img className='w-[24px]  ' src={notification} alt="" />
+              <img className='w-[24px]  ' src={notificationImg} alt="" />
             </div>
             <div className='flex flex-row items-center'>
               <div className='w-[42px] h-[42px] rounded-[50px] mx-[4px]'>
@@ -227,7 +243,7 @@ const handleSave= async (data)=>{
             </div>
             <div className='flex flex-col w-1/2 pr-[10px]'>
               <p className='text-left text-[18px] font-semibold text-gray-600 '>Tác giả</p>
-              <Input className=' h-[36px]  hover:shadow' type="text" 
+              <Input className=' h-[36px] hover:shadow' type="text" 
                 name="author" value={input.author || bookDetail.author } onChange={handleChange} disabled={isView}
               />
             </div>
@@ -247,17 +263,17 @@ const handleSave= async (data)=>{
           </div>
           <div className='flex flex-row my-[20px]'>
             <div className='flex flex-col w-1/2 pr-[10px]'>
-                <p className='text-left text-[18px] font-semibold text-gray-600 '>Ngày phát hành</p>
-                <Input className='rounded-[8px] border-[1px] h-[36px] px-[8px] border-gray-500 hover:shadow' type="text" 
-                  name="date" value={input.date || bookDetail.date } onChange={handleChange} disabled={isView}
-                />
-              </div>
-              <div className='flex flex-col w-1/2 pr-[10px]'>
-                <p className='text-left text-[18px] font-semibold text-gray-600 '>Số trang</p>
-                <Input className='rounded-[8px] border-[1px] h-[36px] px-[8px] border-gray-500 hover:shadow' type="number" 
-                  name="numOfPage" value={input.numOfPage || bookDetail.numOfPage} onChange={handleChange} disabled={isView}
-                />
-              </div>
+              <p className='text-left text-[18px] font-semibold text-gray-600 '>Ngày phát hành</p>
+              <Input className='rounded-[8px] border-[1px] h-[36px] px-[8px] border-gray-500 hover:shadow' type="text" 
+                name="date" value={input.date || bookDetail.date } onChange={handleChange} disabled={isView}
+              />
+            </div>
+            <div className='flex flex-col w-1/2 pr-[10px]'>
+              <p className='text-left text-[18px] font-semibold text-gray-600 '>Số trang</p>
+              <Input className='rounded-[8px] border-[1px] h-[36px] px-[8px] border-gray-500 hover:shadow' type="number" 
+                name="numOfPage" value={input.numOfPage || bookDetail.numOfPage} onChange={handleChange} disabled={isView}
+              />
+            </div>
           </div>
           <div className='flex flex-col my-[20px]'>
             <p className='text-left text-[18px] font-semibold text-gray-600 '>Thể loại</p>
@@ -269,7 +285,7 @@ const handleSave= async (data)=>{
           </div>}
         </div>
         <div className='flex flex-col w-1/2 px-[10px] max-w-[620px]'>
-        <div className='flex flex-col my-[20px]'>
+          <div className='flex flex-col my-[20px]'>
             <p className='text-left text-[18px] font-semibold text-gray-600 '>Ảnh bìa</p>
             <form className='flex flex-col justify-center items-center'>
                 <input className='overflow-hidden opacity-0 w-[1px] h-[1px]' type="file" id='file'  onChange={onChangePicture} disabled={isView}/>

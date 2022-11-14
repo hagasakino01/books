@@ -44,7 +44,7 @@ const columnDefs = [
     headerClass: 'header-ag header-text-center',
     cellStyle: { ...defaultCellStyle, textAlign: 'left', paddingLeft:'18px' },
     headerName: 'Tiêu đề',
-    width: 250,
+    width: 265,
     
     filter: true,
 
