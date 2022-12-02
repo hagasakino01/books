@@ -12,19 +12,19 @@ function Register() {
   const navigate = useNavigate();
   const handleCreateAccOk=async (data)=>{ 
     try {
-      const { data: res } = await axios.post('https://app-bookss.herokuapp.com/api/register', data);
+      const { data: res } = await axios.post('http://localhost:3000/user/register', data);
       console.log(res)
 
-     if(res.success ) {
+     if(res.role ) {
       console.log('ok')
           alert('Đăng Ký thành công')
           navigate('/login') 
-     }else(
-     setErr(true)
-     )
+     }
     
   } catch (error) {
-      
+      if(error.response.data.error ==='Conflict'){
+        setErr(true)
+      }
       console.error(error);
   }
   }
@@ -32,9 +32,9 @@ function Register() {
     setErrPass(false)
     setErr(false)
     setValue(false)
-    if(input.name && input.email && input.username && input.password && input.repassword ){
+    if(input.fullname && input.email && input.username && input.password && input.passwordcf ){
       console.log('test')
-      if(input.password !== input.repassword){
+      if(input.password !== input.passwordcf){
         setErrPass(true)
       }
       else{
@@ -61,7 +61,7 @@ function Register() {
           <div className='flex flex-col items-start'>
             <p className='my-[18px] text-[18px] text-sky-700'>Tên</p>
             <input className='w-[580px] h-[50px] px-[24px] rounded-[8px] border-[1px] ' placeholder='Tên' type="text" 
-              name="name" value={input.name || ''} onChange={handleChange}
+              name="fullname" value={input.fullname || ''} onChange={handleChange}
             />
           </div>
           <div className='flex flex-col items-start'>
@@ -79,7 +79,7 @@ function Register() {
           <div className='flex flex-col items-start mb-[20px]'>
             <p className='my-[18px] text-[18px] text-sky-700'>Nhập lại Mật khẩu</p>
             <input className='w-[580px] h-[50px] px-[24px] rounded-[8px] border-[1px] ' placeholder='Mật khẩu' type="password" 
-              name="repassword" value={input.repassword || ''} onChange={handleChange}
+              name="passwordcf" value={input.passwordcf || ''} onChange={handleChange}
             />
           </div>
           {err&&<div>

@@ -1,35 +1,43 @@
 import axios from 'axios';
 import React, { useState } from 'react'
+import { useDispatch } from 'react-redux';
 import {  Link, useNavigate } from 'react-router-dom'
+import { getPermissionAddmin } from '../features/featuresHome/HomeSlice';
 
 function Login() {
   const [input, setInput] = useState({});
-  const [err, setErr] = useState(false);
+  const [err, setErr] = useState('');
   const handleChange = e => setInput(prevState => ({ ...prevState, [e.target.name]: e.target.value }));
   const navigate = useNavigate();
+  const dispatch= useDispatch()
 
   const handleLogin= async (data)=>{ 
     try {
-      const { data: res } = await axios.post('https://app-bookss.herokuapp.com/api/login', data);
+      const { data: res } = await axios.post('http://localhost:3000/auth/login', data);
       console.log(res)
-
-     if(res.access ) {
-      console.log('ok')
-          navigate('/') 
-          localStorage.setItem('token', res.token)
-     }else(
-      setErr(true)
-     )
-    
+      navigate('/') 
+      localStorage.setItem('token', res.token)
+      handleAddtoken(res.token)
+      if(res.role == 'admin'){
+      localStorage.setItem('role', res.role)
+      }    
   } catch (error) {
       
       console.error(error);
-      setErr(true)
+      console.log(typeof(error.response.data.message))
+      if(typeof(error.response.data.message) == 'string'){
+        setErr(error.response.data.message)
+      }
+      if(typeof(error.response.data.message)== 'object'){
+        setErr(error.response.data.message[0])
+      }     
   }
   }
+  const handleAddtoken=(data)=>{
+    document.cookie=`token=${data}`
+  }
 
-
-
+console.log(err)
   return (
     <div className='flex justify-center items-center w-full h-screen'>
       <div className='flex flex-col w-[720px] h-[520px] rounded-t-[8px] border-[2px] drop-shadow-xl items-center'>
@@ -49,9 +57,9 @@ function Login() {
               name="password" value={input.password || ''} onChange={handleChange}
             />
           </div>
-          {err&& <div>
-            <p className='mt-[10px] text-red-600 '>Tên đăng nhập hoặc mật khẩu không chính xác.</p>
-          </div>}
+           <div>
+            <p className='mt-[10px] text-red-600 '>{err}</p>
+          </div>
             <Link className='my-[10px] hover:text-sky-700' to='/register'>Tạo tài khoản mới</Link>
           <div>
             <button className='flex flex-col w-[580px] py-[10px] items-center  rounded-[8px] border-[1px] bg-orange-400 text-[18px] font-semibold text-white' onClick={()=>handleLogin(input)}>Đăng nhập</button>

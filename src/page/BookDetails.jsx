@@ -34,7 +34,17 @@ function BookDetails() {
   const [err, setErr] = useState(false);
   const [onEdit, setonEdit] = useState(true);
 
-  const handleChange = e => setInput(prevState => ({ ...prevState, [e.target.name]: e.target.value }));
+  const handleChange = e => {
+    if(e.target.name =='numOfPage'){
+      setInput(prevState => ({ ...prevState, [e.target.name]: Number(e.target.value) }))
+    }
+    else if(e.target.name =='amount'){
+      setInput(prevState => ({ ...prevState, [e.target.name]: Number(e.target.value) }))
+    }else{
+      setInput(prevState => ({ ...prevState, [e.target.name]: e.target.value }))
+    }
+  }
+
   const dispatch= useDispatch()
   const navigate = useNavigate();
   // const bookDetail = useSelector((state) => state.home.bookDetail)
@@ -45,12 +55,21 @@ function BookDetails() {
   const [loadingPage, setLoadingPage] = useState(false);
   const [bookDetail, setBookDetail] = useState({});
   const [isView, setIsView] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
   console.log(bookDetail)
-  
+  const token= localStorage.getItem('token')
   useEffect(() => {
     const token= localStorage.getItem('token')
     if(!token){
       navigate('/Login')
+    }
+  }, [])
+
+  useEffect(() => {
+    const role= localStorage.getItem('role')
+    if(role=='admin'){
+      setIsAdmin(true)
     }
   }, [])
 
@@ -63,7 +82,7 @@ function BookDetails() {
   console.log(params)
   const handleGetDataDetail=async()=>{
     setLoadingPage(true)
-    axios.get(`https://app-bookss.herokuapp.com/api/detail-book/${params.id}`)
+    axios.get(`http://localhost:3000/book/${params.id}`)
     .then(function (response) {
       // handle success
       setLoadingPage(false)
@@ -85,11 +104,12 @@ function BookDetails() {
     if(onEdit){
       setInput({author: bookDetail.author,
                 date:bookDetail.date,
-                detail:bookDetail.detail,
+                decription:bookDetail.decription,
                 numOfPage: bookDetail.numOfPage,
                 title: bookDetail.title,
-                type: bookDetail.type,
-                urlImage:  bookDetail.urlImage
+                category: bookDetail.category,
+                urlImage:  bookDetail.urlImage,
+                amount: bookDetail.amount
               })
             }
   }, [isEdit])
@@ -122,18 +142,19 @@ const handleCancelFix=()=>{
   setImgData(bookDetail.urlImage)
   setInput({author: bookDetail.author,
     date:bookDetail.date,
-    detail:bookDetail.detail,
+    decription:bookDetail.decription,
     numOfPage: bookDetail.numOfPage,
     title: bookDetail.title,
-    type: bookDetail.type,
-    urlImage:  bookDetail.urlImage
+    category: bookDetail.category,
+    urlImage:  bookDetail.urlImage,
+    amount: bookDetail.amount
   })
 
 }
 const handleSave= async (data)=>{
   setLoading(true)
   try {
-    const { data: res } = await axios.put(`https://app-bookss.herokuapp.com/api/update-book/${bookDetail._id}`, data);
+    const { data: res } = await axios.put(`http://localhost:3000/book/${bookDetail.id}`, data,{headers: { Authorization: `Bearer ${token}` }});
     console.log(res)
     if(res.success){
       setLoading(false)
@@ -145,13 +166,14 @@ const handleSave= async (data)=>{
     }
 } catch (error) {
     console.error(error);
+    setLoading(false)
 }
   
 }
   const handleAddBook=async (data)=>{ 
     
     try {
-      const { data: res } = await axios.post('https://app-bookss.herokuapp.com/api/add-book', data);
+      const { data: res } = await axios.post('http://localhost:3000/book', data, {headers: { Authorization: `Bearer ${token}` }});
       console.log(res)
       if(res.success){
         setLoading(false)
@@ -161,15 +183,17 @@ const handleSave= async (data)=>{
         
       }else{
         alert('có lỗi xảy ra')
+        setLoading(false)
       }
 
   } catch (error) {
       console.error(error);
+      setLoading(false)
   }
   }
   const handleAddBookCheck=(data)=>{
    
-    if(input.title && input.author && input.detail && input.date && input.numOfPage && input.type ){
+    if(input.title && input.author && input.decription && input.date && input.numOfPage && input.category && input.amount ){
       console.log(data)
       setErr(false)
       handleAddBook(data)
@@ -209,7 +233,7 @@ const handleSave= async (data)=>{
           </div>
           <div className='flex flex-row items-end w-[180px] h-[45px]'>
             <div className='flex flex-row items-center justify-center mx-[4px] mb-[10px]'>
-              <img className='w-[24px]  ' src={notificationImg} alt="" />
+              <img className='w-[24px] ' src={notificationImg} alt="" />
             </div>
             <div className='flex flex-row items-center'>
               <div className='w-[42px] h-[42px] rounded-[50px] mx-[4px]'>
@@ -256,7 +280,7 @@ const handleSave= async (data)=>{
             cols={80}
             id=""
             placeholder=""
-            name="detail" value={input.detail || bookDetail.detail } onChange={handleChange}
+            name="decription" value={input.decription || bookDetail.decription} onChange={handleChange}
             disabled={isView}
             >
             </TextArea>
@@ -278,7 +302,12 @@ const handleSave= async (data)=>{
           <div className='flex flex-col my-[20px]'>
             <p className='text-left text-[18px] font-semibold text-gray-600 '>Thể loại</p>
             <Input className='rounded-[8px] border-[1px] h-[36px] border-gray-500 hover:shadow'  type="text" 
-              name="type" value={input.type ||bookDetail.type } onChange={handleChange} disabled={isView}/>
+              name="category" value={input.category ||bookDetail.category } onChange={handleChange} disabled={isView}/>
+          </div>
+          <div className='flex flex-col my-[20px]'>
+            <p className='text-left text-[18px] font-semibold text-gray-600 '>Số lượng</p>
+            <Input className='rounded-[8px] border-[1px] h-[36px] border-gray-500 hover:shadow'  type="number" 
+              name="amount" value={input.amount ||bookDetail.amount } onChange={handleChange} disabled={isView}/>
           </div>
           {err&&<div className='flex justify-start'>
             <p className=' text-red-600 '>Yêu cầu nhập đầy đủ thông tin.</p>
@@ -309,7 +338,7 @@ const handleSave= async (data)=>{
         {!isView&& !isEdit&&<div className='flex justify-end'>
           <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleAddBookCheck(input)}>Add   {loading&&<Spin indicator={antIcon}/>}</button>
         </div>}
-        {isView&& !isEdit&&<div className='flex justify-end'>
+        {isView&& !isEdit&& isAdmin&&<div className='flex justify-end'>
           <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleEdit()}>Edit</button>
         </div>}
         { isEdit&&<div className='flex justify-end'>

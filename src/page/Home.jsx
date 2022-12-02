@@ -21,7 +21,16 @@ function Home() {
   const navigate = useNavigate();
   const gridRef = useRef(); 
   const rowData = useSelector((state) => state.home.listBook)
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(false);
+const role= localStorage.getItem('role')
+  useEffect(() => {
+    
+    if(role=='admin'){
+      setIsAdmin(true)
+    }
+  }, [])
+  
  const defaultCellStyle = {
   fontSize: '14px',
   lineHeight: '18px',
@@ -59,7 +68,7 @@ const columnDefs = [
     
   },
   {
-    field: 'type',
+    field: 'category',
     headerClass: 'header-ag header-text-center',
     cellStyle: { ...defaultCellStyle, textAlign: 'left', paddingLeft:'18px'},
     headerName: 'thể loại',
@@ -106,7 +115,7 @@ const columnDefs = [
  // Example load data from sever
 const handleGetListBook= async ()=>{
   setLoading(true)
-  axios.get('https://app-bookss.herokuapp.com/api/get-books')
+  axios.get('http://localhost:3000/book')
   .then(function (response) {
     // handle success
     setLoading(false)
@@ -124,10 +133,13 @@ useEffect(() => {
 }, [])
 const token= localStorage.getItem('token')
 
+
+
 const handleLogout=()=>{
   localStorage.clear();
   console.log(token)
   window.location.reload();
+
 }
 const handleLogin=()=>{
   navigate('/login')
@@ -136,7 +148,7 @@ const handleLogin=()=>{
 const handleDelete= async (params)=>{
   setLoading(true)
   console.log(params.data._id)
-  await axios.delete(`https://app-bookss.herokuapp.com/api/delete-book/${params.data._id}`)
+  await axios.delete(`http://localhost:3000/book/${params.data.id}`, {headers: { Authorization: `Bearer ${token}` }})
     .then((res)=> {
       console.log( res )
    
@@ -156,7 +168,8 @@ const handleDeleteCheck=(params)=>{
 }
 const handleViewBook=  (params)=>{
     // handle success
-    navigate(`/BookDetails/`+ params.data._id)
+    navigate(`/BookDetails/`+ params.data.id)
+   
 }
 
 const handleAddBook=()=>{
@@ -205,7 +218,7 @@ const handleAddBook=()=>{
       </div>
     </div>
 
-    {token && <div className=' flex w-[350px] md:w-[720px] xl:w-[1120px] justify-end my-[16px]'>
+    {token && role && <div className=' flex w-[350px] md:w-[720px] xl:w-[1120px] justify-end my-[16px]'>
       <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-green-500 text-[16px] text-white font-semibold ' onClick={()=>handleAddBook()}>Thêm sách</button>
     </div>}
     {!loading&&<div className="ag-theme-alpine w-[350px] md:w-[720px] xl:w-[1120px] h-[600px] mx-[20px]" >
@@ -222,7 +235,7 @@ const handleAddBook=()=>{
                   <div>
                     {token&&<div>
                       <button className='border-neutral-400 border-[1px] mx-[8px] px-[8px] pb-[2px] bg-yellow-200' onClick={()=>handleViewBook(params)} >Xem </button>
-                      <button className='border-neutral-400 border-[1px] mx-[8px] px-[8px] pb-[2px] bg-red-400' onClick={()=>handleDeleteCheck(params)}>Xóa</button>
+                      {role && <button className='border-neutral-400 border-[1px] mx-[8px] px-[8px] pb-[2px] bg-red-400' onClick={()=>handleDeleteCheck(params)}>Xóa</button>}
                     </div>}
                   </div>
                 )
