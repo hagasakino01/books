@@ -23,7 +23,7 @@ function Home() {
   const rowData = useSelector((state) => state.home.listBook)
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(false);
-const role= localStorage.getItem('role')
+  const role= localStorage.getItem('role')
   useEffect(() => {
     
     if(role=='admin'){
@@ -151,10 +151,10 @@ const handleDelete= async (params)=>{
   await axios.delete(`http://localhost:3000/book/${params.data.id}`, {headers: { Authorization: `Bearer ${token}` }})
     .then((res)=> {
       console.log( res )
-   
       handleGetListBook()
     }).catch((err)=> {
       console.log(err)
+      handleGetListBook()
     });
     console.log('ok')
 }

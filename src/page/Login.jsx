@@ -18,8 +18,8 @@ function Login() {
       navigate('/') 
       localStorage.setItem('token', res.token)
       handleAddtoken(res.token)
-      if(res.role == 'admin'){
-      localStorage.setItem('role', res.role)
+      if(res.payload.role == 'admin'){
+      localStorage.setItem('role', res.payload.role)
       }    
   } catch (error) {
       

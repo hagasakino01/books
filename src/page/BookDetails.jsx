@@ -13,6 +13,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { notification, } from 'antd';
+import { Rate } from 'antd';
 const { TextArea } = Input;
 
 
@@ -28,7 +29,7 @@ const openNotification = (placement, action) => {
 };
 function BookDetails() {
   const [input, setInput] = useState({});
-
+  const [inputCmt, setInputCmt] = useState({});
   const [isEdit, setIsEdit] = useState(false);
 
   const [err, setErr] = useState(false);
@@ -44,7 +45,7 @@ function BookDetails() {
       setInput(prevState => ({ ...prevState, [e.target.name]: e.target.value }))
     }
   }
-
+  const handleChangeComment = e => setInputCmt(prevState => ({ ...prevState, [e.target.name]: e.target.value }));
   const dispatch= useDispatch()
   const navigate = useNavigate();
   // const bookDetail = useSelector((state) => state.home.bookDetail)
@@ -56,7 +57,7 @@ function BookDetails() {
   const [bookDetail, setBookDetail] = useState({});
   const [isView, setIsView] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-
+  const [count, setCount] = useState();
   console.log(bookDetail)
   const token= localStorage.getItem('token')
   useEffect(() => {
@@ -79,7 +80,7 @@ function BookDetails() {
       setIsView(true)
             }
   }, [params])
-  console.log(params)
+
   const handleGetDataDetail=async()=>{
     setLoadingPage(true)
     axios.get(`http://localhost:3000/book/${params.id}`)
@@ -108,7 +109,7 @@ function BookDetails() {
                 numOfPage: bookDetail.numOfPage,
                 title: bookDetail.title,
                 category: bookDetail.category,
-                urlImage:  bookDetail.urlImage,
+         
                 amount: bookDetail.amount
               })
             }
@@ -116,7 +117,7 @@ function BookDetails() {
 
   useEffect(() => {
     if(isView){
-      setImgData(bookDetail.urlImage)
+      setImgData(bookDetail.image.url)
     }
   }, [bookDetail])
  
@@ -139,14 +140,14 @@ const handleCancelFix=()=>{
   setIsView(true)
   setonEdit(true)
   setIsEdit(false)
-  setImgData(bookDetail.urlImage)
+  setImgData(bookDetail.image.url)
   setInput({author: bookDetail.author,
     date:bookDetail.date,
     decription:bookDetail.decription,
     numOfPage: bookDetail.numOfPage,
     title: bookDetail.title,
     category: bookDetail.category,
-    urlImage:  bookDetail.urlImage,
+    image:  bookDetail.image.url,
     amount: bookDetail.amount
   })
 
@@ -171,9 +172,18 @@ const handleSave= async (data)=>{
   
 }
   const handleAddBook=async (data)=>{ 
-    
+    console.log("input:",data)
+    let formData = new FormData();
+    formData.append('image', picture)
+    formData.append('title', data.title);
+    formData.append('author', data.author);
+    formData.append('category', data.category);
+    formData.append('date', data.date);
+    formData.append('numOfPage', data.numOfPage);
+    formData.append('decription', data.decription);
+    formData.append('amount', data.amount);
     try {
-      const { data: res } = await axios.post('http://localhost:3000/book', data, {headers: { Authorization: `Bearer ${token}` }});
+      const { data: res } = await axios.post('http://localhost:3000/book', formData, {headers: { Authorization: `Bearer ${token}` }});
       console.log(res)
       if(res.success){
         setLoading(false)
@@ -185,7 +195,6 @@ const handleSave= async (data)=>{
         alert('có lỗi xảy ra')
         setLoading(false)
       }
-
   } catch (error) {
       console.error(error);
       setLoading(false)
@@ -207,6 +216,22 @@ const handleSave= async (data)=>{
     navigate('/')
   }
 
+  // const onChangePicture = e => {
+  //   if (e.target.files[0]) {
+      
+  //     setPicture(e.target.files[0]);
+  //     const reader = new FileReader();
+      
+  //     reader.addEventListener("load", () => {
+  //       setImgData(reader.result);
+  //       setInput(prevState => ({ ...prevState, urlImage : reader.result }))
+  //     });
+  //     reader.readAsDataURL(e.target.files[0]);
+      
+    
+  //   }
+    
+  // };
   const onChangePicture = e => {
     if (e.target.files[0]) {
       
@@ -219,10 +244,12 @@ const handleSave= async (data)=>{
       });
       reader.readAsDataURL(e.target.files[0]);
       
-    
-    }
-    
+    }  
   };
+
+  const handleVote=(count)=>{
+   setCount(count)
+  }
 
   return (
     <div className='flex flex-col pb-[50px]'>
@@ -244,7 +271,7 @@ const handleSave= async (data)=>{
                 <p className='text-[14px] text-[#EA6200] mb-0'>Admin001</p>
               </div>
               <div onClick={()=>handleLogout()}>
-                <img className='w-[24px] cursor-pointer' src={logout}  alt="" />
+                <img className='w-[24px] cursor-pointer' src={logout} alt="" />
               </div>
             </div>
           </div>
@@ -309,6 +336,7 @@ const handleSave= async (data)=>{
             <Input className='rounded-[8px] border-[1px] h-[36px] border-gray-500 hover:shadow'  type="number" 
               name="amount" value={input.amount ||bookDetail.amount } onChange={handleChange} disabled={isView}/>
           </div>
+          
           {err&&<div className='flex justify-start'>
             <p className=' text-red-600 '>Yêu cầu nhập đầy đủ thông tin.</p>
           </div>}
@@ -317,13 +345,13 @@ const handleSave= async (data)=>{
           <div className='flex flex-col my-[20px]'>
             <p className='text-left text-[18px] font-semibold text-gray-600 '>Ảnh bìa</p>
             <form className='flex flex-col justify-center items-center'>
-                <input className='overflow-hidden opacity-0 w-[1px] h-[1px]' type="file" id='file'  onChange={onChangePicture} disabled={isView}/>
-                <div className='w-[170px] border-[1px] mb-[20px] cursor-pointer'>
+                <input className='overflow-hidden opacity-0 w-[1px] h-[1px]' type="file" id='file'  onChange={onChangePicture} disabled={isView} accept=""/>
+                {isAdmin&&<div className='w-[170px] border-[1px] mb-[20px] cursor-pointer'>
                   <label htmlFor="file" className={isView&&'opacity-50 flex flex-row'||'opacity-100 cursor-pointer flex flex-row'}>
                     <p className='mx-[10px] pr-[10px] my-auto'>Upload Image</p>
                     <UploadOutlined style={{ fontSize: 34 }} />
                   </label>
-                </div>
+                </div>}
                 <div className="flex  justify-center ">
                   <Image  src={imgData} />
                 </div>
@@ -346,6 +374,15 @@ const handleSave= async (data)=>{
           <button className='border-[1px] border-cyan-900 px-[16px] py-[4px] rounded-[4px] bg-red-500 text-[16px] text-white font-semibold mr-[50px]' onClick={()=>handleCancelFix()}>Cancel</button>
         </div>}
       </div>}
+      <div className='flex flex-row px-[24px] w-full justify-center'>
+        <div className='flex flex-col my-[20px] w-[1240px] justify-center'>
+          <p className='text-left text-[18px] font-semibold text-gray-600 '>Đánh giá </p>
+          <div>
+            <Rate allowHalf onChange={(count)=>handleVote(count)} />
+            </div>
+          <Input className='' type='text' name='comment'value={inputCmt.comment } onChange={handleChangeComment}></Input>
+        </div>
+      </div>
     </div>
   )
 }
