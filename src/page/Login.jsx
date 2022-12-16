@@ -36,7 +36,6 @@ function Login() {
   const handleAddtoken=(data)=>{
     document.cookie=`token=${data}`
   }
-
 console.log(err)
   return (
     <div className='flex justify-center items-center w-full h-screen'>

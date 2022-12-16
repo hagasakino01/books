@@ -33,6 +33,7 @@ function BookDetails() {
   const [isEdit, setIsEdit] = useState(false);
 
   const [err, setErr] = useState(false);
+  const [messErr, setMessErr] = useState('');
   const [onEdit, setonEdit] = useState(true);
 
   const handleChange = e => {
@@ -194,16 +195,19 @@ const handleSave= async (data)=>{
       }else{
         alert('có lỗi xảy ra')
         setLoading(false)
+        
       }
-  } catch (error) {
-      console.error(error);
+  } catch (res) {
+      console.log(res.response.data.message);
       setLoading(false)
+      setMessErr(res.response.data.message[0])
   }
   }
   const handleAddBookCheck=(data)=>{
    
     if(input.title && input.author && input.decription && input.date && input.numOfPage && input.category && input.amount ){
       console.log(data)
+      setMessErr('')
       setErr(false)
       handleAddBook(data)
       setLoading(true)
@@ -340,6 +344,9 @@ const handleSave= async (data)=>{
           {err&&<div className='flex justify-start'>
             <p className=' text-red-600 '>Yêu cầu nhập đầy đủ thông tin.</p>
           </div>}
+          <div className='flex justify-start'>
+            <p className=' text-red-600 '>{messErr}</p>
+          </div>
         </div>
         <div className='flex flex-col w-1/2 px-[10px] max-w-[620px]'>
           <div className='flex flex-col my-[20px]'>
