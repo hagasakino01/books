@@ -7,6 +7,7 @@ import Register from './page/Register';
 import BookDetails from './page/BookDetails';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import Cart from './page/Cart';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path='/Register' element={<Register />}/>
         <Route path='/BookDetails/:id' element={<BookDetails/>}/>
         <Route path='/BookDetails' element={<BookDetails/>}/>
+        <Route path='/cart' element={<Cart />}/>
       </Routes>
     </div>
   );

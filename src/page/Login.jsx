@@ -17,6 +17,8 @@ function Login() {
       console.log(res)
       navigate('/') 
       localStorage.setItem('token', res.token)
+      localStorage.setItem('userid', res.payload.userid)
+      localStorage.setItem('fullname', res.payload.fullname)
       handleAddtoken(res.token)
       if(res.payload.role == 'admin'){
       localStorage.setItem('role', res.payload.role)

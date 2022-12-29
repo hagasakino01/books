@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getBookDetail, getIsLock, getIsView, getListBook, getLogin } from '../features/featuresHome/HomeSlice';
 import axios from 'axios';
 import { Spin } from 'antd';
-import { LoadingOutlined } from '@ant-design/icons';
+import { LoadingOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 
 
 const antIcon = <LoadingOutlined style={{ fontSize: 240 }} spin />
@@ -132,7 +132,7 @@ useEffect(() => {
   handleGetListBook()
 }, [])
 const token= localStorage.getItem('token')
-
+const fullname= localStorage.getItem('fullname')
 
 
 const handleLogout=()=>{
@@ -143,6 +143,9 @@ const handleLogout=()=>{
 }
 const handleLogin=()=>{
   navigate('/login')
+}
+const handleCart=()=>{
+  navigate('/cart')
 }
 
 const handleDelete= async (params)=>{
@@ -186,17 +189,17 @@ const handleAddBook=()=>{
         {token && 
         <div className='fixed w-full bg-white shadow-md z-10'>
           <div className='flex justify-end py-[8px] px-[8px]  border-b-[1px] '>
-            <div className='flex flex-row items-end w-[180px] h-[45px]'>
-              <div className='flex flex-row items-center justify-center mx-[4px] mb-[10px]'>
-                <img className='w-[24px]  ' src={notification} alt="" />
-              </div>
+            <div className='flex flex-row items-end w-[200px] h-[45px]'>
+              {!isAdmin&&<div className='flex flex-row items-center justify-center mx-[4px] mb-[10px]'>
+                <ShoppingCartOutlined style={{fontSize: "25px"}} onClick={()=>handleCart()}/>
+              </div>}
               <div className='flex flex-row items-center'>
                 <div className='w-[42px] h-[42px] rounded-[50px] mx-[4px]'>
                   <img className='w-[42px] h-[42px] rounded-[50px]' src={thangBang} alt="" />
                 </div>
                 <div className=' mx-[4px]'>
                   <p className='text-[14px] text-[#7D7D7D] mb-0'>Xin chào</p>
-                  <p className='text-[14px] text-[#EA6200] mb-0'>Admin001</p>
+                  <p className='text-[14px] text-[#EA6200] mb-0 '>{fullname}</p>
                 </div>
                 <div onClick={()=>handleLogout()}>
                   <img className='w-[24px] cursor-pointer' src={logout}  alt="" />
